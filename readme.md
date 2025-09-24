@@ -12,6 +12,7 @@ The setup ensures:
 ---
 
 ## 🏗️ Architecture Overview
+![Architecture Diagram](vpc-example-private-subnets.png)
 
 * **Public Subnets**: Contain Bastion Host, NAT Gateway, and Load Balancer.
 * **Private Subnets**: Contain application EC2 instances (EC2a and EC2b).
@@ -21,8 +22,6 @@ The setup ensures:
 
   * `aws-prod-example` → EC2a (serves `index.html`)
   * `aws-prod` → EC2b (serves `second.html`)
-[
-Architecture diagram()](https://github.com/Bisht-Sonalika/AWS-Project-Application-Load-Balancer-with-Private-EC2-Instances/blob/main/vpc-example-private-subnets.png)
 
 ---
 
@@ -81,11 +80,12 @@ python3 -m http.server 8000
   * `aws-prod-example` → maps to EC2a (index.html)
   * `aws-prod` → maps to EC2b (second.html)
 * Health check: HTTP → `/` on port `8000`
-targetrule1.png
-targetrule2.png
+
 ---
 
 ### 5. Application Load Balancer
+![](targetrule1.png)
+![](targetrule2.png)
 
 * Create an **ALB** in public subnets.
 * Add both Target Groups.
@@ -104,9 +104,8 @@ targetrule2.png
   * `http://<ALB-DNS>/a` → shows **index.html** (EC2a)
   * `http://<ALB-DNS>/b` → shows **second.html** (EC2b)
 
-firstec2.png
-secondec2.png
-
+![EC2a Result](firstec2.png)
+![EC2b Result](secondec2.png)
 
 ---
 
