@@ -1,69 +1,120 @@
 # AWS Project: Application Load Balancer with Private EC2 Instances
 
-## 📌 Overview
-This project demonstrates deploying an application in a secure AWS VPC environment.  
-The setup ensures that EC2 instances remain in **private subnets** (not directly accessible from the internet), while an **Application Load Balancer (ALB)** makes the application available publicly.  
+## 📌 About the Project
 
-Traffic routing is controlled by the ALB using **path-based rules** so different EC2 instances can serve different content.
+This project demonstrates how to create a **secure and highly available AWS VPC** that hosts application servers in **private subnets**.
+The setup ensures:
+
+* EC2 instances are not directly accessible from the internet.
+* Traffic is routed via an **Application Load Balancer (ALB)**.
+* Different EC2 instances serve different HTML pages through **target groups**.
 
 ---
 
-## 🏗️ Architecture
-![Architecture Diagram](vpc-example-private-subnets.png)
-### Key Points:
-- **Public Subnets**: Contain the Bastion host and NAT Gateway.
-- **Private Subnets**: Contain the application EC2 instances (not directly accessible from the internet).
-- **Bastion Host**: Used to securely SSH into EC2 instances in private subnets.
-- **NAT Gateway**: Allows private instances to download updates from the internet.
-- **Application Load Balancer**: Publicly accessible, forwards requests to private EC2 instances.
-- **Path-based Routing**:  
-  - `/a` → forwards traffic to **EC2a**  
-  - `/b` → forwards traffic to **EC2b**
+## 🏗️ Architecture Overview
+
+* **Public Subnets**: Contain Bastion Host, NAT Gateway, and Load Balancer.
+* **Private Subnets**: Contain application EC2 instances (EC2a and EC2b).
+* **NAT Gateway**: Allows private EC2 instances to reach the internet (for updates, package installations).
+* **Application Load Balancer**: Routes incoming traffic to EC2 instances.
+* **Target Groups**:
+
+  * `aws-prod-example` → EC2a (serves `index.html`)
+  * `aws-prod` → EC2b (serves `second.html`)
+
+Architecture diagram(vpc-example-private-subnets.png)
 
 ---
 
 ## ⚙️ AWS Services Used
-- **VPC** with public and private subnets across multiple Availability Zones
-- **EC2** instances (running Python `http.server` on port 8000)
-- **Security Groups** for controlled access
-- **Bastion Host** for SSH access
-- **NAT Gateway**
-- **Application Load Balancer**
-- **Target Groups & Listener Rules**
+
+* **VPC** with public & private subnets across 2 Availability Zones
+* **EC2** (application servers in private subnets)
+* **Bastion Host** (SSH access to private EC2)
+* **NAT Gateway**
+* **Application Load Balancer (ALB)**
+* **Target Groups & Listener Rules**
+* **Security Groups** for controlled access
 
 ---
 
-## 🚀 How It Works
-1. A **Bastion host** is launched in the public subnet to allow SSH access to private EC2 instances.
-2. Two **EC2 instances** are launched in private subnets.  
-   - Each runs a simple web server (`python3 -m http.server 8000`) with different HTML content.
-3. Two **Target Groups** are created:
-   - TG-EC2a → contains EC2a
-   - TG-EC2b → contains EC2b
-4. The **ALB Listener (port 80)** is configured with path rules:
-   - `/a*` → forwards to TG-EC2a
-   - `/b*` → forwards to TG-EC2b
-5. Users access the app via the ALB’s public DNS:
-   - `http://<ALB-DNS>/a` → shows EC2a content
-   - `http://<ALB-DNS>/b` → shows EC2b content
+## 🚀 Step-by-Step Implementation
 
+### 1. VPC & Networking Setup
+
+* Create a **VPC** with 2 public and 2 private subnets across different AZs.
+* Attach an **Internet Gateway**.
+* Create a **NAT Gateway** in a public subnet.
 ---
-
-## 📝 Setup Instructions
-### 1. Networking
-- Create a **VPC** with 2 public and 2 private subnets (across AZs).
-- Attach an **Internet Gateway** to the VPC.
-- Add a **NAT Gateway** in a public subnet.
 
 ### 2. Bastion Host
-- Launch an EC2 instance in a public subnet.
-- Allow SSH from your IP in its security group.
-- Use this Bastion to connect to private EC2 instances.
 
-### 3. Application Servers
-- Launch EC2a and EC2b in private subnets.
-- SSH into them via Bastion host.
-- Install a simple app, e.g.:
-  ```bash
-  echo "Hello from EC2a" > index.html
-  python3 -m http.server 8000
+* Launch a Bastion Host EC2 in the **public subnet**.
+* Allow **SSH (port 22)** from your IP.
+* Use this instance to connect to EC2s in private subnets.
+---
+
+### 3. Application EC2 Instances
+
+* Launch **two EC2 instances** in private subnets.
+* SSH into them using the Bastion Host.
+
+On **EC2a**:
+
+```bash
+python3 -m http.server 8000
+```
+
+On **EC2b**:
+
+```bash
+python3 -m http.server 8000
+```
+
+
+---
+
+### 4. Target Groups
+
+* Create **two Target Groups**:
+
+  * `aws-prod-example` → maps to EC2a (index.html)
+  * `aws-prod` → maps to EC2b (second.html)
+* Health check: HTTP → `/` on port `8000`
+targetrule1.png
+targetrule2.png
+---
+
+### 5. Application Load Balancer
+
+* Create an **ALB** in public subnets.
+* Add both Target Groups.
+* Configure Listener Rules (port 80):
+
+  * `/a*` → forward to `aws-prod-example`
+  * `/b*` → forward to `aws-prod`
+
+
+---
+
+### 6. Testing
+
+* Access via the ALB DNS name:
+
+  * `http://<ALB-DNS>/a` → shows **index.html** (EC2a)
+  * `http://<ALB-DNS>/b` → shows **second.html** (EC2b)
+
+firstec2.png
+secondec2.png
+
+
+---
+
+## ✅ Outcome
+
+* Application is securely deployed in **private subnets**.
+* Accessible only via **Application Load Balancer**.
+* Different EC2s serve different paths (`/a`, `/b`).
+* High availability across multiple AZs.
+
+
