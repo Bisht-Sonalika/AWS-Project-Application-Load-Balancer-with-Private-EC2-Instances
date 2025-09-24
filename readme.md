@@ -9,8 +9,7 @@ Traffic routing is controlled by the ALB using **path-based rules** so different
 ---
 
 ## 🏗️ Architecture
-![Architecture Diagram](architecture/architecture-diagram.png)
-
+![Architecture Diagram](vpc-example-private-subnets.png)
 ### Key Points:
 - **Public Subnets**: Contain the Bastion host and NAT Gateway.
 - **Private Subnets**: Contain the application EC2 instances (not directly accessible from the internet).
