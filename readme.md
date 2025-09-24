@@ -105,7 +105,8 @@ python3 -m http.server 8000
   * `http://<ALB-DNS>/b` → shows **second.html** (EC2b)
 
 ![EC2a Result](firstec2.png)
-![EC2b Result](secondec2.png)
+![EC2b Result](second%20ec2.png)
+
 
 ---
 
