@@ -21,8 +21,8 @@ The setup ensures:
 
   * `aws-prod-example` → EC2a (serves `index.html`)
   * `aws-prod` → EC2b (serves `second.html`)
-
-Architecture diagram(vpc-example-private-subnets.png)
+[
+Architecture diagram()](https://github.com/Bisht-Sonalika/AWS-Project-Application-Load-Balancer-with-Private-EC2-Instances/blob/main/vpc-example-private-subnets.png)
 
 ---
 
